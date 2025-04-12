@@ -35,10 +35,10 @@ public class Log extends HttpServlet {
             ResultSet rs = pst.executeQuery();
             
             if (rs.next()) {
-                // User found in database
+              
                 response.getWriter().println("Successful");
             } else {
-                // User not found or invalid credentials
+                
                 response.getWriter().println("Invalid credential!");
             }
             
