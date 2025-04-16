@@ -1,51 +1,37 @@
 import java.io.IOException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.*;
 
-@WebServlet("/LoginServlet")
+@WebServlet("/Login")
 public class Log extends HttpServlet {
-    
-    private static final long serialVersionUID = 1L;
-    
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String username = request.getParameter("username");
+
+        String email = request.getParameter("email");
         String password = request.getParameter("password");
-    
-        try {
-            // load driver
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            
-            // Connect to mysql database
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/FoodWasteDB", "root", "Sachin@2005");
-            
-            
+
+        try (Connection conn = DBUtil.getConnection()) {
             String sql = "SELECT * FROM users WHERE email = ? AND password = ?";
-            PreparedStatement pst = conn.prepareStatement(sql);
-            pst.setString(1, username); 
-            pst.setString(2, password);
-            
-            ResultSet rs = pst.executeQuery();
-            
+            PreparedStatement stmt = conn.prepareStatement(sql);
+            stmt.setString(1, email);
+            stmt.setString(2, password);
+
+            ResultSet rs = stmt.executeQuery();
+
             if (rs.next()) {
-              
-                response.getWriter().println("Successful");
+                response.sendRedirect("index.html?login=success");
             } else {
-                
-                response.getWriter().println("Invalid credential!");
+                response.sendRedirect("index.html?login=fail");
             }
-            
-            conn.close();
+
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().println("Error: " + e.getMessage());
+            response.sendRedirect("index.html?login=fail");
         }
     }
 }
